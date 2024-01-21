@@ -1,4 +1,6 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
 from routers import auth, users, websockets
 
 from openai import OpenAI
@@ -10,6 +12,16 @@ from pydantic import BaseModel
 load_dotenv()
 
 app = FastAPI()
+
+# Add CORSMiddleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # Specifies the allowed origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
+
 app.include_router(websockets.router)
 app.include_router(users.router)
 app.include_router(auth.router)
