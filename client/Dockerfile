@@ -2,24 +2,23 @@
 # https://hub.docker.com/_/node
 FROM node:20-alpine
 
-# Create and change to the app directory.
-WORKDIR /usr/src/app
+# Set the working directory.
+WORKDIR /app
 
-# Copy package.json, package-lock.json, and next.config.js files
+# Copy package.json and package-lock.json (if available).
 COPY package*.json ./
-COPY next.config.js ./
 
-# Install production dependencies.
-RUN npm install --only=production
+# Install project dependencies.
+RUN npm install
 
-# Copy local code to the container's work directory.
-COPY . ./
+# Copy the rest of your app's source code from your host to your image filesystem.
+COPY . .
 
-# Build the application.
-RUN npm run build
-
-# Expose the port the app runs on.
+# Bind the app to port 3000.
 EXPOSE 3000
 
-# Run the application.
-CMD ["npm", "start"]
+# Define the Docker user.
+USER node
+
+# Specify the command to run on container start.
+CMD ["npm", "run", "dev"]

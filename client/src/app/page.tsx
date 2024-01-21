@@ -18,6 +18,7 @@ const Home: React.FC = () => {
 		};
 
 		socketRef.current.onmessage = (event: MessageEvent) => {
+			console.log('Message received from server:', event.data);
 			setTranscript(prev => prev + '\n' + event.data);
 		};
 
@@ -34,6 +35,8 @@ const Home: React.FC = () => {
 
 	const startRecording = async (): Promise<void> => {
 		setIsRecording(true);
+		console.log('Starting recording...');
+
 		try {
 			const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 			const mediaRecorder = new MediaRecorder(stream);
@@ -43,9 +46,11 @@ const Home: React.FC = () => {
 					socketRef.current &&
 					socketRef.current.readyState === WebSocket.OPEN
 				) {
+					console.log('Sending audio data to server...');
 					socketRef.current.send(event.data);
 				}
 			};
+
 			mediaRecorder.start(250);
 		} catch (error) {
 			console.error('Error starting recording:', error);
@@ -54,6 +59,8 @@ const Home: React.FC = () => {
 
 	const stopRecording = (): void => {
 		setIsRecording(false);
+		console.log('Stopping recording...');
+
 		if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
 			socketRef.current.close();
 		}

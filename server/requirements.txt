@@ -7,3 +7,4 @@ google-auth-httplib2==0.2.0
 google-auth-oauthlib==1.2.0
 google-auth==2.26.2
 google-cloud==0.34.0
+google-cloud-speech==2.23.0
