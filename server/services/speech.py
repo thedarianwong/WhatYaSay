@@ -14,20 +14,25 @@ async def transcribe_streaming(audio_stream):
     """
     Transcribe streaming audio data.
     """
-    config = speech.RecognitionConfig(
-        encoding=speech.RecognitionConfig.AudioEncoding.WEBM_OPUS,
-        sample_rate_hertz=48000,
-        language_code="en-US",
-        enable_automatic_punctuation=True,
+    diarization_config = speech.SpeakerDiarizationConfig(
         enable_speaker_diarization=True,
-        diarization_speaker_count=2
+        min_speaker_count=2,
+        max_speaker_count=10,
     )
 
-    streaming_config = speech.StreamingRecognitionConfig(config=config, interim_results=True)
+    config = speech.RecognitionConfig(
+        encoding=speech.RecognitionConfig.AudioEncoding.WEBM_OPUS,
+        enable_automatic_punctuation=True,
+        language_code="en-US",
+        diarization_config=diarization_config,
+        sample_rate_hertz = 48000,
+    )
 
-    requests = (speech.StreamingRecognizeRequest(audio_content=chunk) for chunk in audio_stream)
+    streaming_config = await speech.StreamingRecognitionConfig(config=config, interim_results=True)
 
-    responses = client.streaming_recognize(streaming_config, requests)
+    requests = await (speech.StreamingRecognizeRequest(audio_content=chunk) for chunk in audio_stream)
+
+    responses = await client.streaming_recognize(streaming_config, requests)
 
     for response in responses:
         for result in response.results:
@@ -35,14 +40,3 @@ async def transcribe_streaming(audio_stream):
             for word_info in result.alternatives[0].words:
                 print(f"word: '{word_info.word}', speaker_tag: {word_info.speaker_tag}")
     return responses
-
-async def receive_audio_chunks(websocket):
-    while True:
-        try:
-            chunk = await websocket.receive_bytes()
-            if not chunk:
-                break  # Handle the end of the stream
-            yield chunk
-        except Exception as e:
-            print(f"Error receiving audio chunk: {e}")
-            break

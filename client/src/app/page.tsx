@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, MutableRefObject } from 'react';
 
-const WebSocketURL = 'wss://urban-guide-57x9v5wvj57376gr-8000.app.github.dev/ws';
+const WebSocketURL = 'ws://localhost:8000/ws';
 
 const Home: React.FC = () => {
 	const [isRecording, setIsRecording] = useState<boolean>(false);
@@ -68,7 +68,7 @@ const Home: React.FC = () => {
 			mediaRecorderRef.current.stop();
 		}
 	};
-
+	
 	return (
 		<div className="flex h-screen">
 			<div className="flex flex-col items-center justify-center w-1/2 bg-gray-200">
