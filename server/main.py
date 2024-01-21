@@ -1,5 +1,8 @@
 from fastapi import FastAPI, WebSocket
 from routers import auth, users, websockets
+from dotenv import load_dotenv
+
+load_dotenv() 
 
 app = FastAPI()
 app.include_router(websockets.router)

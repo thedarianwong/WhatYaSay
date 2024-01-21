@@ -28,7 +28,7 @@ run_or_start_docker_container() {
             docker start $CONTAINER_NAME
         else
             echo "Running a new Docker container $CONTAINER_NAME with volume mount..."
-            docker run -d -p 8000:8000 --name $CONTAINER_NAME -v $(pwd):/app $IMAGE_NAME
+            docker run -p 8000:8000 --name $CONTAINER_NAME -v $(pwd):/app $IMAGE_NAME
         fi
     fi
 }
