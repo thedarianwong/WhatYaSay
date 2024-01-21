@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 whatyasay.json
+whatyasaya.json
 # C extensions
 *.so
 
