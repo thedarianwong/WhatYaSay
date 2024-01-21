@@ -3,7 +3,10 @@ from google.oauth2 import service_account
 from google.cloud import speech
 
 # Initialize the Google Cloud client with credentials
-client_file = 'whatyasay.json'
+try:
+    client_file = 'services/whatyasaya.json'
+except:
+    print("Add whatyasay.json under this dir")
 credentials = service_account.Credentials.from_service_account_file(client_file)
 client = speech.SpeechClient(credentials=credentials)
 
@@ -18,7 +21,6 @@ async def transcribe_streaming(audio_stream):
         enable_automatic_punctuation=True,
         enable_speaker_diarization=True,
         diarization_speaker_count=2
-        # Add additional configuration as needed
     )
 
     streaming_config = speech.StreamingRecognitionConfig(config=config, interim_results=True)
