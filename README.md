@@ -49,3 +49,16 @@
 ### Phase 5 - Deployment and Launch
 - 🌐 Deploy the application to a web server.
 - 🚀 Officially launch the app for public use.
+
+## Difficulties
+It was our first time building an application that utilizes mostly Google's API and Authentication so we were spending lots of time setting it up. We also had trouble establishing the websocket to ensure the smooth audio data delivery from the client side to the server side. It was not receiving properly, we tried sending in bytes, buffer and all sorts of methods but we just did not find a way to ensure that it is smooth and happening in real time. This is something we would like to fix after the hackathon since this is the most important aspect of the project. For now, we will just be submitting the version where we are utilizing just web speech built-in API in Chrome. We will also link the Authentication afterwards, we just got the token. 
+
+## Build
+```bash
+# Navigate to the client directory and run the start-dev script
+cd client
+./start-dev.sh
+
+# Navigate to the server directory and run the start-dev script
+cd server
+./start-dev.sh
