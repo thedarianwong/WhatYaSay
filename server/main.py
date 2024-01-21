@@ -24,6 +24,13 @@ class Context(BaseModel):
     context: str
 @app.post("/summarize")
 async def summarize(context: Context):
+    """
+    Example usage
+    {
+        "context":"Presentation",
+        "audio_content":"Welcome to our presentation on 'The Future of Renewable Energy'. As we ..."
+    }
+    """
     client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
     prompt = f"Given the context, which is: {context.context}, please provide a concise summary of the main points, with title and bulletpoints if needed, and from the following audio content: {context.audio_content}"
     model="gpt-3.5-turbo-1106"
@@ -34,5 +41,4 @@ async def summarize(context: Context):
         messages=messages,
         temperature=0,
     )
-    print(response.choices)
     return response.choices[0].message.content
