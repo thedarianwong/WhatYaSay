@@ -2,13 +2,14 @@
 
 import { useEffect, useRef, useState, MutableRefObject } from 'react';
 
-const WebSocketURL = 'ws://localhost:8000/ws';
+const WebSocketURL = 'wss://urban-guide-57x9v5wvj57376gr-8000.app.github.dev/ws';
 
 const Home: React.FC = () => {
 	const [isRecording, setIsRecording] = useState<boolean>(false);
 	const [transcript, setTranscript] = useState<string>('');
-	const socketRef: MutableRefObject<WebSocket | null> =
-		useRef<WebSocket | null>(null);
+	const socketRef: MutableRefObject<WebSocket | null> = useRef<WebSocket | null>(null);
+	const mediaRecorderRef: MutableRefObject<MediaRecorder | null> = useRef<MediaRecorder | null>(null);
+
 
 	useEffect(() => {
 		socketRef.current = new WebSocket(WebSocketURL);
@@ -36,18 +37,22 @@ const Home: React.FC = () => {
 	const startRecording = async (): Promise<void> => {
 		setIsRecording(true);
 		console.log('Starting recording...');
-		socketRef.current = new WebSocket(WebSocketURL);
 		try {
 			const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-			const mediaRecorder = new MediaRecorder(stream);
+			mediaRecorderRef.current = new MediaRecorder(stream);
 
-			mediaRecorder.ondataavailable = async (event: BlobEvent) => {
+			mediaRecorderRef.current.start(5000);
+
+			mediaRecorderRef.current.ondataavailable = async (event: BlobEvent) => {
 				if (
 					socketRef.current &&
 					socketRef.current.readyState === WebSocket.OPEN
 				) {
 					console.log('Sending audio data to server...');
 					socketRef.current.send(event.data);
+					console.log(event.data);
+				} else {
+					console.log('WebSocket not open. Unable to send data.');
 				}
 			};
 		} catch (error) {
@@ -59,8 +64,8 @@ const Home: React.FC = () => {
 		setIsRecording(false);
 		console.log('Stopping recording...');
 
-		if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-			socketRef.current.close();
+		if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+			mediaRecorderRef.current.stop();
 		}
 	};
 
