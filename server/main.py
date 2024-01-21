@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from routers import auth, users, websockets
+
 from openai import OpenAI
 import os
 from dotenv import load_dotenv
