@@ -1,9 +1,9 @@
 import io
 from google.oauth2 import service_account
 from google.cloud import speech
+import wave
 
-
-def transcribe(audio) -> speech.RecognizeResponse:
+def transcribe(audio, frame_rate, channel_count) -> speech.RecognizeResponse:
     diarization_config = speech.SpeakerDiarizationConfig(
         enable_speaker_diarization=True,
         min_speaker_count=2,
@@ -15,7 +15,8 @@ def transcribe(audio) -> speech.RecognizeResponse:
         enable_automatic_punctuation=True,
         language_code="en-US",
         diarization_config=diarization_config,
-        audio_channel_count = 1,
+        audio_channel_count = channel_count,
+        sample_rate_hertz = frame_rate,
     )
 
     print("Waiting for operation to complete...")
@@ -28,6 +29,12 @@ def transcribe(audio) -> speech.RecognizeResponse:
 
     return result
 
+def frame_rate_channel(audio_file_name):
+    with wave.open(audio_file_name, "rb") as wave_file:
+        frame_rate = wave_file.getframerate()
+        channel_count = wave_file.getnchannels()
+        return frame_rate,channel_count
+    
 try:
     client_file = 'whatyasay.json'
 except:
@@ -40,4 +47,5 @@ audio_file = 'sample_audio.wav'
 with io.open(audio_file, 'rb') as f:
     content = f.read()
     audio = speech.RecognitionAudio(content=content)
-    transcribe(audio=audio)
+    frame_rate,channel_count = frame_rate_channel(audio_file_name=audio_file)
+    transcribe(audio=audio, frame_rate=frame_rate, channel_count=channel_count)

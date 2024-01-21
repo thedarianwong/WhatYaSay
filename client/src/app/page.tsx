@@ -36,7 +36,7 @@ const Home: React.FC = () => {
 	const startRecording = async (): Promise<void> => {
 		setIsRecording(true);
 		console.log('Starting recording...');
-
+		socketRef.current = new WebSocket(WebSocketURL);
 		try {
 			const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 			const mediaRecorder = new MediaRecorder(stream);
@@ -50,8 +50,6 @@ const Home: React.FC = () => {
 					socketRef.current.send(event.data);
 				}
 			};
-
-			mediaRecorder.start(250);
 		} catch (error) {
 			console.error('Error starting recording:', error);
 		}
