@@ -1,4 +1,5 @@
 # What DYa’ Say? 🎙️
+![WhatDyaSay](https://github.com/thedarianwong/WhatYaSay/assets/93755359/5c6bb2ce-bbdf-4ae6-a02a-a508bcab535f)
 
 ## 🌟 Project Overview
 "What DYa’ Say?" is a cutting-edge web-based application designed to offer real-time transcription services with enhanced features for summarizing and structuring transcribed content into an easily accessible note format. Ideal for students, professionals, or anyone in need of documenting and organizing spoken information efficiently.
