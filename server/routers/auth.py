@@ -2,8 +2,11 @@ from fastapi import APIRouter, Request, HTTPException, Depends  # Add Depends he
 from google_auth_oauthlib.flow import Flow
 from starlette.responses import RedirectResponse
 from dotenv import load_dotenv
+from starlette.responses import JSONResponse
 from fastapi.security import OAuth2AuthorizationCodeBearer
 import os
+
+
 # Load environment variables
 load_dotenv()
 
@@ -32,42 +35,56 @@ async def login(request: Request):
             redirect_uri=GOOGLE_REDIRECT_URI
         )
 
+    
         authorization_url, state = flow.authorization_url(
             access_type='offline',
             include_granted_scopes='true',
             prompt='consent'
         )
 
+
+        
         response = RedirectResponse(authorization_url)
         response.set_cookie('oauth2_state', state, httponly=True, samesite='Lax')  # Set a secure cookie for state
         return response
 
-    except Exception as e:
+    except Exception as e: 
         raise HTTPException(status_code=500, detail=str(e))
+    
 
 # Callback route: handles the response from Google's OAuth 2.0 server
 @router.get("/callback")
-async def callback(request: Request, state: str = Depends(oauth2_scheme)):
-    # Retrieve the state from the query parameters and cookies for CSRF protection
-    state_query = request.query_params.get('state')
-    state_cookie = request.cookies.get('oauth2_state')
+async def callback(request: Request):
+    # Retrieve the state and code from the query parameters
+    state = request.query_params.get('state')
+    code = request.query_params.get('code')
 
-    if not state_cookie or state_cookie != state_query:
-        raise HTTPException(status_code=400, detail="State mismatch")
+    # You can log the state and code here for debugging purposes
+    # print(f"State: {state}, Code: {code}")
+
+    if not state:
+        return JSONResponse(content={"detail": "State parameter is missing"}, status_code=400)
+
+    # Compare the state parameter to the state cookie
+    state_cookie = request.cookies.get('oauth2_state')
+    if not state_cookie or state_cookie != state:
+        return JSONResponse(content={"detail": "State mismatch"}, status_code=400)
 
     try:
+        # Initialize the flow using the saved information
         flow = Flow.from_client_secrets_file(
             CLIENT_SECRETS_FILE,
             scopes=['https://www.googleapis.com/auth/drive'],
+            state=state,
             redirect_uri=GOOGLE_REDIRECT_URI
         )
 
-        authorization_response = request.url._url
-        flow.fetch_token(authorization_response=authorization_response)
+        # Use the code to fetch the token
+        flow.fetch_token(code=code)
 
-        # Obtain the credentials and store them securely for future use
+        # Extract token information
         credentials = flow.credentials
-        response = {
+        response_data = {
             "access_token": credentials.token,
             "refresh_token": credentials.refresh_token,
             "token_uri": credentials.token_uri,
@@ -76,12 +93,8 @@ async def callback(request: Request, state: str = Depends(oauth2_scheme)):
             "scopes": credentials.scopes
         }
 
-        # Convert the response to something that can be JSON-encoded
-        json_compatible_response = jsonable_encoder(response)
-        return json_compatible_response
-    
+        return JSONResponse(content=response_data)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-
+        # You can log the exception message here for debugging purposes
+        # print(f"Exception: {e}")
+        return JSONResponse(content={"detail": str(e)}, status_code=500)
