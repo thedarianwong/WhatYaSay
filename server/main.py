@@ -1,5 +1,6 @@
 from fastapi import FastAPI, WebSocket
 from routers import auth, users, websockets
+
 from openai import OpenAI
 import os
 import pandas as pd
