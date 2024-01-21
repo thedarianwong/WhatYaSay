@@ -147,9 +147,9 @@ const Home: React.FC = () => {
                         Submit Meeting
                     </button>
                 </div>
-                <div className="w-1/2 p-6 bg-gray-900">
+                <div className="w-1/2 p-6 bg-gray-900 h-full flex flex-col">
                     <h2 className="text-2xl font-semibold text-blue-300 text-center mb-4">Transcript</h2>
-                    <div className="bg-gray-800 p-4 h-[90%] overflow-y-auto border border-blue-500 rounded">
+                    <div className="flex-grow bg-gray-800 p-4 overflow-y-auto border border-blue-500 rounded">
                         {transcript ? <p>{transcript}</p> : <p className="text-gray-500">Transcript will appear here...</p>}
                     </div>
                 </div>
