@@ -1,5 +1,6 @@
 from fastapi import APIRouter, WebSocket
-from services.speech import transcribe_streaming
+from services.speech import transcribe
+from google.cloud import speech
 import io
 import asyncio
 
@@ -8,24 +9,33 @@ router = APIRouter()
 @router.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
-    # print("WebSocket connection established")
+    connection_closed = False  # Flag to track the connection status
+    try:
+        # Initialize an empty bytes object to accumulate the data
+        data = b''
 
-    # Buffer to store incoming audio data
-    audio_buffer = io.BytesIO()
+        # Receive data in chunks from the WebSocket
+        while True:
+            message = await websocket.receive_bytes()
+            if message == b'end':  # You can define a protocol for the end of the message
+                break
+            data += message
+            audio_content = speech.RecognitionAudio(content=data)
 
-    while True:
-        try:
-            data = await websocket.receive_bytes()
-            await audio_buffer.write(data)
-        except Exception as e:
-            print(f"Error receiving data: {e}")
-            break
+            # Transcribe the audio and get the response
+            response = await transcribe(audio_content)
 
+            # Send the transcription result back to the client
+            await websocket.send_text("Transcription: " + str(response))
 
-    # Process the accumulated audio data for transcription
-    audio_content = await audio_buffer.getvalue()
-    await audio_buffer.close()
-    await websocket.send_text(transcribe_streaming(audio_content))
+    except Exception as e:
+        print(f"Error receiving data here: {e}")
+    finally:
+        if not connection_closed:
+            await websocket.close()
+            connection_closed = True  # Update the flag after closing
+            print("WebSocket connection closed")
+
     # try:
     #     while True:
     #         await websocket.send_text("Hello")

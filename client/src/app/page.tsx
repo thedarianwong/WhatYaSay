@@ -41,7 +41,7 @@ const Home: React.FC = () => {
 			const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 			mediaRecorderRef.current = new MediaRecorder(stream);
 
-			mediaRecorderRef.current.start(5000);
+			mediaRecorderRef.current.start(2000);
 
 			mediaRecorderRef.current.ondataavailable = async (event: BlobEvent) => {
 				if (
